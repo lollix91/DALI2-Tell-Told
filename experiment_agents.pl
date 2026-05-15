@@ -69,11 +69,13 @@ run_testE(Id, Context) :>
     ;   Outcome = accepted
     ),
     assert_belief(test_result(Id, Outcome)),
+    assert_belief(test_response(Id, Result)),
     log("crop_advisor run_test ~w: ~w -> ~w", [Id, Context, Outcome]).
 
 %% reset_results(Id): clears a previous test_result(Id,_) belief.
 reset_resultsE(Id) :>
     ( retract_belief(test_result(Id, _)) -> true ; true ),
+    ( retract_belief(test_response(Id, _)) -> true ; true ),
     log("crop_advisor: results reset for test ~w", [Id]).
 
 %% ---- State control ----
@@ -149,10 +151,12 @@ run_testE(Id, Context) :>
     ;   Outcome = accepted
     ),
     assert_belief(test_result(Id, Outcome)),
+    assert_belief(test_response(Id, Result)),
     log("coordinator run_test ~w: ~w -> ~w", [Id, Context, Outcome]).
 
 reset_resultsE(Id) :>
     ( retract_belief(test_result(Id, _)) -> true ; true ),
+    ( retract_belief(test_response(Id, _)) -> true ; true ),
     log("coordinator: results reset for test ~w", [Id]).
 
 %% ---- State control ----
@@ -209,10 +213,12 @@ run_testE(Id, Context) :>
     ;   Outcome = accepted
     ),
     assert_belief(test_result(Id, Outcome)),
+    assert_belief(test_response(Id, Result)),
     log("state_test run_test ~w: ~w -> ~w", [Id, Context, Outcome]).
 
 reset_resultsE(Id) :>
     ( retract_belief(test_result(Id, _)) -> true ; true ),
+    ( retract_belief(test_response(Id, _)) -> true ; true ),
     log("state_test: results reset for test ~w", [Id]).
 
 %% ---- State control ----

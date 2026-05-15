@@ -6,19 +6,28 @@ Tests DALI2's tell/told filtering mechanism applied to AI Oracle interactions.
 Requires DALI2 running via Docker with experiment_agents.pl loaded.
 
 Scenarios:
-  A â€” Smart Agriculture   (crop_advisor agent)
-  B â€” Emergency Response  (coordinator agent)
-  C â€” State-Dependent     (state_test agent)
+  A -- Smart Agriculture   (crop_advisor agent)
+  B -- Emergency Response  (coordinator agent)
+  C -- State-Dependent     (state_test agent)
 
 Usage:
     python experiment.py [--url http://localhost:8080] [--model openai/gpt-4o]
 
 Setup:
-    1. Set OPENROUTER_API_KEY env variable (or enter when prompted)
-    2. Copy experiment_agents.pl to DALI2/examples/
-    3. Start DALI2:
-         Windows: $env:AGENT_FILE='examples/experiment_agents.pl'; docker compose up --build
-         Linux:   AGENT_FILE=examples/experiment_agents.pl docker compose up --build
+    1. Set OPENROUTER_API_KEY env variable (or enter when prompted).
+    2. Start DALI2 with experiment agents (run from the DALI2 directory):
+
+         Windows PowerShell:
+           $env:OPENROUTER_API_KEY = "sk-or-..."
+           docker compose -f docker-compose.yml `
+             -f ..\\DALI2-Tell-Told\\docker-compose.experiment.yml up --build
+
+         Linux / macOS:
+           OPENROUTER_API_KEY="sk-or-..." \
+           docker compose -f docker-compose.yml \
+             -f ../DALI2-Tell-Told/docker-compose.experiment.yml up --build
+
+    3. Open http://localhost:8080 to verify agents are running.
     4. python experiment.py
 """
 
@@ -29,10 +38,12 @@ import sys
 import os
 import getpass
 import argparse
+import threading
 from dataclasses import dataclass
 from typing import Optional
 from collections import defaultdict
 import requests
+import redis as redis_lib
 
 # ============================================================
 # CONFIGURATION
@@ -40,10 +51,71 @@ import requests
 
 DEFAULT_DALI2_URL   = "http://localhost:8080"
 DEFAULT_MODEL       = "openai/gpt-4o"
+REDIS_HOST          = "localhost"
+REDIS_PORT          = 6379
 NUM_REPETITIONS     = 3      # repeat each test case for statistical robustness
-POLL_INTERVAL       = 0.5   # seconds between belief polls
+POLL_INTERVAL       = 0.5   # seconds between belief polls (unused -- kept for compat)
 POLL_TIMEOUT        = 45.0  # max seconds to wait for LLM result
-BLOCKED_TIMEOUT     = 3.0   # max seconds to wait for blocked result (no LLM call)
+BLOCKED_TIMEOUT     = 5.0   # max seconds to wait for blocked result (no LLM call)
+
+
+# ============================================================
+# REDIS LOG LISTENER
+# ============================================================
+
+# Pattern: log messages on LOGS channel are "AGENT:MESSAGE"
+# assert_belief logs: "Belief added: test_result(ID,OUTCOME)"
+# We capture these to avoid the broken /api/beliefs REST endpoint.
+
+_LOG_BELIEF_PAT = re.compile(
+    r"^(\w+):Belief added: (test_result\(\d+,\w+\)|test_response\(\d+,.+\))$"
+)
+
+class RedisLogListener:
+    """Subscribes to Redis LOGS channel and collects belief-added log entries."""
+
+    def __init__(self, host: str = REDIS_HOST, port: int = REDIS_PORT):
+        self._client = redis_lib.Redis(host=host, port=port, decode_responses=True)
+        self._pubsub = self._client.pubsub()
+        self._lock = threading.Lock()
+        # { agent_name: [belief_string, ...] }
+        self._beliefs: dict[str, list[str]] = defaultdict(list)
+        self._thread: Optional[threading.Thread] = None
+
+    def start(self):
+        self._pubsub.subscribe(**{"LOGS": self._on_log})
+        self._thread = self._pubsub.run_in_thread(sleep_time=0.05, daemon=True)
+
+    def stop(self):
+        try:
+            self._pubsub.unsubscribe("LOGS")
+            if self._thread:
+                self._thread.stop()
+        except Exception:
+            pass
+
+    def clear_agent(self, agent: str):
+        with self._lock:
+            self._beliefs[agent] = []
+
+    def get_beliefs(self, agent: str) -> list:
+        with self._lock:
+            return list(self._beliefs[agent])
+
+    def _on_log(self, message):
+        if message["type"] != "message":
+            return
+        data = message["data"]
+        m = _LOG_BELIEF_PAT.match(data)
+        if m:
+            agent_name = m.group(1)
+            belief_str = m.group(2)
+            with self._lock:
+                self._beliefs[agent_name].append(belief_str)
+
+
+# Module-level listener instance (initialized in main)
+_log_listener = None
 
 
 # ============================================================
@@ -60,7 +132,10 @@ def dali2_inject(url: str, agent: str, event: str) -> dict:
 
 
 def dali2_get_beliefs(url: str, agent: str) -> list:
-    """Return list of belief strings for the given agent."""
+    """Return list of belief strings collected from Redis LOGS (not REST API)."""
+    if _log_listener is not None:
+        return _log_listener.get_beliefs(agent)
+    # Fallback to REST API (may return empty if agents are separate processes)
     r = requests.get(f"{url}/api/beliefs", params={"agent": agent}, timeout=10)
     r.raise_for_status()
     return [item["belief"] for item in r.json().get("beliefs", [])]
@@ -89,18 +164,30 @@ def dali2_alive(url: str) -> bool:
 def poll_for_result(url: str, agent: str, test_id: int,
                     timeout: float) -> tuple:
     """
-    Poll agent beliefs until test_result(test_id, Outcome) appears.
-    Returns (outcome_str, elapsed_ms) or (None, elapsed_ms) on timeout.
+    Wait until test_result(test_id, Outcome) appears in Redis LOGS (belief added).
+    Also extracts test_response(test_id, Term) if stored by the agent.
+    Returns (outcome_str, response_term_str, elapsed_ms) or
+    (None, "", elapsed_ms) on timeout.
     """
-    pattern = re.compile(rf"^test_result\({re.escape(str(test_id))},(\w+)\)$")
-    t0 = time.time()
+    pat_result  = re.compile(rf"^test_result\({re.escape(str(test_id))},(\w+)\)$")
+    resp_prefix = f"test_response({test_id},"
+    t0            = time.time()
+    outcome       = None
+    response_term = ""
     while time.time() - t0 < timeout:
         for b in dali2_get_beliefs(url, agent):
-            m = pattern.match(b)
-            if m:
-                return m.group(1), (time.time() - t0) * 1000
+            b = b.strip()
+            if outcome is None:
+                m = pat_result.match(b)
+                if m:
+                    outcome = m.group(1)
+            if not response_term and b.startswith(resp_prefix) and b.endswith(")"):
+                response_term = b[len(resp_prefix):-1]
+        if outcome is not None:
+            break
         time.sleep(POLL_INTERVAL)
-    return None, (time.time() - t0) * 1000
+    elapsed = (time.time() - t0) * 1000
+    return outcome, response_term, elapsed
 
 
 
@@ -110,7 +197,7 @@ def poll_for_result(url: str, agent: str, test_id: int,
 # ============================================================
 
 # Each entry: (scenario_name, agent, context, expected, state_override)
-# state_override is None or "active" / "idle" â€” passed as set_status(state) event.
+# state_override is None or "active" / "idle" -- passed as set_status(state) event.
 # expected is "blocked", "rejected", or "accepted_or_rejected".
 TEST_CASES = [
     # --- Scenario A: Smart Agriculture (crop_advisor) ---
@@ -151,7 +238,7 @@ TEST_CASES = [
 
     # --- Scenario C: State-Dependent (state_test) ---
     # Tell filter: only suggestion_request/1 allowed.
-    # Told filter: suggestion/1, recommendation/2 â€” both only when status(active).
+    # Told filter: suggestion/1, recommendation/2 -- both only when status(active).
     ("state_dependent", "state_test",
      "suggestion_request(optimize_irrigation_schedule)",    "accepted_or_rejected", "active"),
     ("state_dependent", "state_test",
@@ -173,17 +260,19 @@ TEST_CASES = [
 
 @dataclass
 class Result:
-    scenario:   str
-    test_id:    int
-    repetition: int
-    agent:      str
-    query:      str
-    state:      Optional[str]
-    expected:   str
-    outcome:    str          # "blocked", "rejected", "accepted", "timeout", "error"
-    correct:    bool
-    latency_ms: float
-    error:      str = ""
+    scenario:       str
+    test_id:        int
+    repetition:     int
+    agent:          str
+    query:          str
+    state:          Optional[str]
+    expected:       str
+    outcome:        str           # "blocked", "rejected", "accepted", "timeout", "error"
+    correct:        bool
+    latency_ms:     float
+    response_term:  str  = ""    # Prolog term returned by ask_ai (or blocked/rejected wrapper)
+    parseable:      bool = False  # True if LLM was called and returned a parseable Prolog term
+    error:          str  = ""
 
 
 def run_experiment(url: str, repetitions: int) -> list:
@@ -221,6 +310,9 @@ def run_experiment(url: str, repetitions: int) -> list:
 
             # 3. Inject the test event and start timer
             t0 = time.time()
+            # Clear Redis log buffer for this agent just before injecting
+            if _log_listener is not None:
+                _log_listener.clear_agent(agent)
             try:
                 dali2_inject(url, agent, f"run_test({test_id},{context})")
             except Exception as e:
@@ -235,10 +327,13 @@ def run_experiment(url: str, repetitions: int) -> list:
 
             # 4. Poll: blocked queries resolve very fast; LLM calls take seconds
             timeout = BLOCKED_TIMEOUT if expected == "blocked" else POLL_TIMEOUT
-            outcome, latency_ms = poll_for_result(url, agent, test_id, timeout)
+            outcome, response_term, latency_ms = poll_for_result(url, agent, test_id, timeout)
 
             if outcome is None:
                 outcome = "timeout"
+
+            # parseable = LLM was reached and returned a valid Prolog term
+            parseable = outcome in ("accepted", "rejected")
 
             correct = (
                 outcome == expected
@@ -247,13 +342,15 @@ def run_experiment(url: str, repetitions: int) -> list:
             )
 
             sym = "OK" if correct else "FAIL"
-            print(f"    rep {rep}: [{sym}] {outcome:8s}  {latency_ms:.0f} ms")
+            suffix = f"  [{response_term[:40]}]" if response_term else ""
+            print(f"    rep {rep}: [{sym}] {outcome:8s}  {latency_ms:.0f} ms{suffix}")
 
             all_results.append(Result(
                 scenario=scenario, test_id=test_id, repetition=rep,
                 agent=agent, query=context, state=state,
                 expected=expected, outcome=outcome,
-                correct=correct, latency_ms=round(latency_ms, 1)
+                correct=correct, latency_ms=round(latency_ms, 1),
+                response_term=response_term, parseable=parseable
             ))
             test_id += 1
             time.sleep(0.2)
@@ -289,6 +386,9 @@ def compute_statistics(results: list) -> dict:
         filt_lats = [r.latency_ms for r in filt_list]
         avg_filt  = sum(filt_lats) / len(filt_lats) if filt_lats else 0
 
+        parseable_calls = sum(1 for r in rlist if r.parseable)
+        parse_rate = round(parseable_calls / len(llm_list) * 100, 1) if llm_list else 0.0
+
         stats[scenario] = {
             "total_tests":            total,
             "blocked":                blocked,
@@ -297,6 +397,8 @@ def compute_statistics(results: list) -> dict:
             "errors":                 errors,
             "filter_accuracy":        round(correct / total * 100, 1) if total else 0,
             "llm_calls":              len(llm_list),
+            "parseable_responses":    parseable_calls,
+            "parse_rate":             parse_rate,
             "avg_latency_ms":         round(avg_lat, 1),
             "min_latency_ms":         round(min_lat, 1),
             "max_latency_ms":         round(max_lat, 1),
@@ -319,6 +421,8 @@ def print_summary(stats: dict):
         print(f"  Errors/timeouts:     {s['errors']}")
         print(f"  Filter accuracy:     {s['filter_accuracy']:.1f}%")
         print(f"  LLM calls made:      {s['llm_calls']}")
+        print(f"  Parseable responses: {s.get('parseable_responses', '?')}/{s['llm_calls']}"
+              f"  ({s.get('parse_rate', 0):.1f}%)")
         print(f"  Avg LLM latency:     {s['avg_latency_ms']} ms")
         print(f"  Min/Max latency:     {s['min_latency_ms']}/{s['max_latency_ms']} ms")
         print(f"  Avg filter overhead: {s['avg_filter_overhead_ms']} ms")
@@ -330,6 +434,9 @@ def save_results(results: list, stats: dict, url: str, model: str):
         "metadata": {
             "dali2_url":   url,
             "model":       model,
+            "endpoint":    "https://openrouter.ai/api/v1/chat/completions",
+            "temperature": 0.3,
+            "max_tokens":  100,
             "repetitions": NUM_REPETITIONS,
             "timestamp":   time.strftime("%Y-%m-%dT%H:%M:%S"),
         },
@@ -348,7 +455,7 @@ def save_results(results: list, stats: dict, url: str, model: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="DALI2 tell/told filter experiment â€” requires DALI2 running via Docker"
+        description="DALI2 tell/told filter experiment -- requires DALI2 running via Docker"
     )
     parser.add_argument("--url",  default=DEFAULT_DALI2_URL,
                         help=f"DALI2 server URL (default: {DEFAULT_DALI2_URL})")
@@ -395,7 +502,20 @@ if __name__ == "__main__":
     dali2_set_ai_model(args.url, args.model)
     print(f"\n  AI Oracle configured.  enabled={dali2_ai_enabled(args.url)}")
 
+    # Start Redis log listener (captures belief-added log entries from agents)
+    try:
+        _log_listener = RedisLogListener(REDIS_HOST, REDIS_PORT)
+        _log_listener.start()
+        print(f"  Redis log listener started ({REDIS_HOST}:{REDIS_PORT})")
+    except Exception as e:
+        print(f"  WARNING: Could not connect to Redis ({e}). Falling back to REST API.")
+        _log_listener = None
+
     results = run_experiment(args.url, NUM_REPETITIONS)
+
+    if _log_listener:
+        _log_listener.stop()
+
     stats   = compute_statistics(results)
     print_summary(stats)
     save_results(results, stats, args.url, args.model)
