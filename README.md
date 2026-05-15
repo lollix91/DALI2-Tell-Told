@@ -25,7 +25,7 @@ state-dependent body conditions and priority ordering. The experiment validates 
 3. **State-dependent conditions** — the same response is accepted or rejected
    depending on the agent's current belief state.
 4. **Overhead** — filter evaluation is computationally negligible (~0 ms) compared
-   to LLM latency (~1,800 ms).
+   to LLM latency (~1,900 ms).
 
 ---
 
@@ -78,21 +78,22 @@ If the variable is not set, the script will prompt for it at runtime
 
 ### Step 2 — Start DALI2
 
-Copy `experiment_agents.pl` to your DALI2 clone's `examples/` directory, then:
+From the DALI2 repository directory, start DALI2 using the Compose override file
+that mounts this experiment directory (no files need to be copied into DALI2):
 
 ```powershell
 # Windows PowerShell
 $env:OPENROUTER_API_KEY = "sk-or-..."
-$env:AGENT_FILE = "examples/experiment_agents.pl"
 cd path\to\DALI2
-docker compose up --build
+docker compose -f docker-compose.yml `
+  -f ..\DALI2-Tell-Told\docker-compose.experiment.yml up --build
 ```
 
 ```bash
 # Linux / macOS
 OPENROUTER_API_KEY="sk-or-..." \
-AGENT_FILE=examples/experiment_agents.pl \
-docker compose up --build
+docker compose -f docker-compose.yml \
+  -f ../DALI2-Tell-Told/docker-compose.experiment.yml up --build
 ```
 
 Open **http://localhost:8080** to see the web dashboard.
@@ -107,7 +108,7 @@ python experiment.py
 The script automatically:
 1. Injects `run_test(Id, Context)` events into each agent via `/api/inject`
 2. Sets agent state (`set_status(active/idle)`) as required per test case
-3. Polls `/api/beliefs` until `test_result(Id, Outcome)` appears
+3. Subscribes to the Redis `LOGS` channel and waits for `test_result(Id, Outcome)` belief assertions
 4. Records outcome (`blocked` / `rejected` / `accepted`) and latency
 5. Saves all results and statistics to `results.json`
 
@@ -172,10 +173,10 @@ max 100 tokens, 3 repetitions per test case (60 executions total):
 
 | Scenario       | Tests | Blocked | Accepted | Rejected | Accuracy | Avg latency |
 |----------------|-------|---------|----------|----------|----------|-------------|
-| Agriculture    | 21    | 9 (43%) | 12 (57%) | 0        | 100%     | 1,718 ms    |
-| Emergency      | 21    | 9 (43%) | 0        | 12 (57%) | 100%     | 1,976 ms    |
-| State-dependent| 18    | 6 (33%) | 6 (33%)  | 6 (33%)  | 100%     | 1,840 ms    |
-| **Total**      | **60**| **24**  | **18**   | **18**   | **100%** | **1,845 ms**|
+| Agriculture    | 21    | 9 (43%) | 12 (57%) | 0        | 100%     | 1,545 ms    |
+| Emergency      | 21    | 9 (43%) | 0        | 12 (57%) | 100%     | 2,546 ms    |
+| State-dependent| 18    | 6 (33%) | 6 (33%)  | 6 (33%)  | 100%     | 1,629 ms    |
+| **Total**      | **60**| **24**  | **18**   | **18**   | **100%** | **1,907 ms**|
 
 Filter overhead was below 0.1 ms in all cases (ratio ~10⁻⁴ vs LLM latency).
 

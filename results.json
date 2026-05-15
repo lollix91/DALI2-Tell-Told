@@ -6,7 +6,7 @@
     "temperature": 0.3,
     "max_tokens": 100,
     "repetitions": 3,
-    "timestamp": "2026-05-16T01:25:23"
+    "timestamp": "2026-05-16T01:48:36"
   },
   "statistics": {
     "agriculture": {
@@ -19,10 +19,10 @@
       "llm_calls": 12,
       "parseable_responses": 12,
       "parse_rate": 100.0,
-      "avg_latency_ms": 1669.8,
-      "min_latency_ms": 1004.2,
-      "max_latency_ms": 3004.6,
-      "avg_filter_overhead_ms": 779.278
+      "avg_latency_ms": 1545.0,
+      "min_latency_ms": 1006.2,
+      "max_latency_ms": 2504.0,
+      "avg_filter_overhead_ms": 779.989
     },
     "emergency": {
       "total_tests": 21,
@@ -34,10 +34,10 @@
       "llm_calls": 12,
       "parseable_responses": 12,
       "parse_rate": 100.0,
-      "avg_latency_ms": 2589.4,
-      "min_latency_ms": 2002.3,
-      "max_latency_ms": 3523.3,
-      "avg_filter_overhead_ms": 1781.989
+      "avg_latency_ms": 2545.9,
+      "min_latency_ms": 1502.6,
+      "max_latency_ms": 3006.5,
+      "avg_filter_overhead_ms": 1780.567
     },
     "state_dependent": {
       "total_tests": 18,
@@ -49,10 +49,10 @@
       "llm_calls": 12,
       "parseable_responses": 12,
       "parse_rate": 100.0,
-      "avg_latency_ms": 1634.3,
-      "min_latency_ms": 1001.8,
-      "max_latency_ms": 2528.4,
-      "avg_filter_overhead_ms": 585.017
+      "avg_latency_ms": 1628.6,
+      "min_latency_ms": 1003.2,
+      "max_latency_ms": 2503.3,
+      "avg_filter_overhead_ms": 503.117
     }
   },
   "raw_results": [
@@ -66,7 +66,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 3004.6,
+      "latency_ms": 1502.6,
       "response_term": "suggestion(irrigate)",
       "parseable": true,
       "error": ""
@@ -81,7 +81,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 2004.1,
+      "latency_ms": 1501.5,
       "response_term": "suggestion(irrigate)",
       "parseable": true,
       "error": ""
@@ -96,7 +96,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1503.7,
+      "latency_ms": 1502.1,
       "response_term": "suggestion(irrigate)",
       "parseable": true,
       "error": ""
@@ -111,8 +111,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1502.0,
-      "response_term": "suggestion(stay_hydrated)",
+      "latency_ms": 1502.7,
+      "response_term": "suggestion(drink_water)",
       "parseable": true,
       "error": ""
     },
@@ -126,7 +126,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 2002.2,
+      "latency_ms": 2504.0,
       "response_term": "suggestion(stay_hydrated)",
       "parseable": true,
       "error": ""
@@ -141,8 +141,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1500.8,
-      "response_term": "suggestion(apply_sunscreen)",
+      "latency_ms": 1503.0,
+      "response_term": "suggestion(stay_hydrated)",
       "parseable": true,
       "error": ""
     },
@@ -156,7 +156,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 500.8,
+      "latency_ms": 501.3,
       "response_term": "blocked(market_price(wheat))",
       "parseable": false,
       "error": ""
@@ -171,7 +171,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 1000.7,
+      "latency_ms": 1002.1,
       "response_term": "blocked(market_price(wheat))",
       "parseable": false,
       "error": ""
@@ -186,7 +186,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 1001.8,
+      "latency_ms": 501.5,
       "response_term": "blocked(market_price(wheat))",
       "parseable": false,
       "error": ""
@@ -201,7 +201,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 501.9,
+      "latency_ms": 1002.5,
       "response_term": "blocked(financial_advice(invest,stocks))",
       "parseable": false,
       "error": ""
@@ -216,7 +216,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 1004.8,
+      "latency_ms": 501.8,
       "response_term": "blocked(financial_advice(invest,stocks))",
       "parseable": false,
       "error": ""
@@ -231,7 +231,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 501.0,
+      "latency_ms": 1004.3,
       "response_term": "blocked(financial_advice(invest,stocks))",
       "parseable": false,
       "error": ""
@@ -246,7 +246,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 1000.5,
+      "latency_ms": 500.7,
       "response_term": "blocked(generate_report(summary))",
       "parseable": false,
       "error": ""
@@ -261,7 +261,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 501.2,
+      "latency_ms": 1001.4,
       "response_term": "blocked(generate_report(summary))",
       "parseable": false,
       "error": ""
@@ -276,7 +276,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 1000.8,
+      "latency_ms": 1004.3,
       "response_term": "blocked(generate_report(summary))",
       "parseable": false,
       "error": ""
@@ -291,7 +291,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1502.7,
+      "latency_ms": 1504.8,
       "response_term": "suggestion(irrigate)",
       "parseable": true,
       "error": ""
@@ -306,7 +306,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1504.2,
+      "latency_ms": 1507.8,
       "response_term": "suggestion(irrigate)",
       "parseable": true,
       "error": ""
@@ -321,7 +321,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1503.8,
+      "latency_ms": 1501.4,
       "response_term": "suggestion(irrigate)",
       "parseable": true,
       "error": ""
@@ -336,7 +336,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1502.8,
+      "latency_ms": 1006.2,
       "response_term": "suggestion(irrigate)",
       "parseable": true,
       "error": ""
@@ -366,7 +366,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1004.2,
+      "latency_ms": 1502.0,
       "response_term": "suggestion(irrigate)",
       "parseable": true,
       "error": ""
@@ -381,7 +381,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 2505.6,
+      "latency_ms": 1502.6,
       "response_term": "rejected(response(evacuate,building_a))",
       "parseable": true,
       "error": ""
@@ -396,8 +396,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 2502.5,
-      "response_term": "rejected(suggestion(evacuate(building_a)))",
+      "latency_ms": 3002.4,
+      "response_term": "rejected(response(evacuate_now,building_a))",
       "parseable": true,
       "error": ""
     },
@@ -411,7 +411,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 2502.3,
+      "latency_ms": 2005.1,
       "response_term": "rejected(suggestion(evacuate(building_a)))",
       "parseable": true,
       "error": ""
@@ -426,8 +426,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 3006.0,
-      "response_term": "rejected(suggestion(evacuate_district_5))",
+      "latency_ms": 3003.4,
+      "response_term": "rejected(suggestion(evacuate(district_5)))",
       "parseable": true,
       "error": ""
     },
@@ -441,8 +441,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 3523.3,
-      "response_term": "rejected(suggestion(evacuate_district_5))",
+      "latency_ms": 2502.7,
+      "response_term": "rejected(suggestion(evacuate(district_5)))",
       "parseable": true,
       "error": ""
     },
@@ -456,8 +456,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 2503.6,
-      "response_term": "rejected(suggestion(evacuate_district_5))",
+      "latency_ms": 3006.5,
+      "response_term": "rejected(suggestion(evacuate(district_5)))",
       "parseable": true,
       "error": ""
     },
@@ -471,7 +471,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 2005.6,
+      "latency_ms": 1502.4,
       "response_term": "blocked(generate_report(summary))",
       "parseable": false,
       "error": ""
@@ -486,7 +486,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 1501.3,
+      "latency_ms": 2003.1,
       "response_term": "blocked(generate_report(summary))",
       "parseable": false,
       "error": ""
@@ -501,7 +501,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 2007.3,
+      "latency_ms": 1501.7,
       "response_term": "blocked(generate_report(summary))",
       "parseable": false,
       "error": ""
@@ -516,7 +516,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 1505.3,
+      "latency_ms": 2004.7,
       "response_term": "blocked(send_email(admin,status_update))",
       "parseable": false,
       "error": ""
@@ -531,7 +531,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 2003.4,
+      "latency_ms": 1501.9,
       "response_term": "blocked(send_email(admin,status_update))",
       "parseable": false,
       "error": ""
@@ -546,7 +546,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 2006.4,
+      "latency_ms": 2002.7,
       "response_term": "blocked(send_email(admin,status_update))",
       "parseable": false,
       "error": ""
@@ -561,7 +561,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 1501.7,
+      "latency_ms": 1502.2,
       "response_term": "blocked(query_database(personnel_records))",
       "parseable": false,
       "error": ""
@@ -576,7 +576,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 2003.1,
+      "latency_ms": 2003.2,
       "response_term": "blocked(query_database(personnel_records))",
       "parseable": false,
       "error": ""
@@ -591,7 +591,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 1503.8,
+      "latency_ms": 2003.2,
       "response_term": "blocked(query_database(personnel_records))",
       "parseable": false,
       "error": ""
@@ -606,8 +606,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 2502.7,
-      "response_term": "rejected(suggestion(evacuate_area))",
+      "latency_ms": 2005.2,
+      "response_term": "rejected(response(evacuate,downtown))",
       "parseable": true,
       "error": ""
     },
@@ -621,7 +621,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 2002.3,
+      "latency_ms": 2505.1,
       "response_term": "rejected(suggestion(evacuate_area))",
       "parseable": true,
       "error": ""
@@ -636,8 +636,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 3010.0,
-      "response_term": "rejected(suggestion(evacuate(downtown)))",
+      "latency_ms": 2502.7,
+      "response_term": "rejected(response(evacuate_area))",
       "parseable": true,
       "error": ""
     },
@@ -651,7 +651,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 2505.3,
+      "latency_ms": 3003.5,
       "response_term": "rejected(suggestion(turn_on_air_conditioner))",
       "parseable": true,
       "error": ""
@@ -666,8 +666,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 2502.7,
-      "response_term": "rejected(suggestion(turn_on_air_conditioning))",
+      "latency_ms": 2507.2,
+      "response_term": "rejected(suggestion(turn_on_air_conditioner))",
       "parseable": true,
       "error": ""
     },
@@ -681,8 +681,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 2006.3,
-      "response_term": "rejected(suggestion(turn_on_air_conditioning))",
+      "latency_ms": 3004.3,
+      "response_term": "rejected(suggestion(turn_on_air_conditioner))",
       "parseable": true,
       "error": ""
     },
@@ -696,8 +696,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1001.8,
-      "response_term": "suggestion(use_weather_forecast_data)",
+      "latency_ms": 2503.3,
+      "response_term": "suggestion(install_soil_moisture_sensors)",
       "parseable": true,
       "error": ""
     },
@@ -711,8 +711,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 2033.1,
-      "response_term": "suggestion(adjust_irrigation_timing)",
+      "latency_ms": 2002.9,
+      "response_term": "suggestion(adjust_watering_times)",
       "parseable": true,
       "error": ""
     },
@@ -727,7 +727,7 @@
       "outcome": "accepted",
       "correct": true,
       "latency_ms": 1502.0,
-      "response_term": "suggestion(adjust_watering_times)",
+      "response_term": "suggestion(install_smart_sensors)",
       "parseable": true,
       "error": ""
     },
@@ -741,7 +741,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1504.1,
+      "latency_ms": 1501.0,
       "response_term": "suggestion(collect_soil_samples)",
       "parseable": true,
       "error": ""
@@ -756,7 +756,7 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 1509.6,
+      "latency_ms": 1503.9,
       "response_term": "suggestion(collect_soil_samples)",
       "parseable": true,
       "error": ""
@@ -771,8 +771,8 @@
       "expected": "accepted_or_rejected",
       "outcome": "accepted",
       "correct": true,
-      "latency_ms": 2528.4,
-      "response_term": "suggestion(collect_soil_samples)",
+      "latency_ms": 1003.2,
+      "response_term": "suggestion(perform_soil_test)",
       "parseable": true,
       "error": ""
     },
@@ -786,8 +786,8 @@
       "expected": "rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 1506.2,
-      "response_term": "rejected(suggestion(implement_smart_sensors))",
+      "latency_ms": 1507.7,
+      "response_term": "rejected(suggestion(adjust_schedule_based_on_weather_forecast))",
       "parseable": true,
       "error": ""
     },
@@ -801,8 +801,8 @@
       "expected": "rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 1508.0,
-      "response_term": "rejected(suggestion(consider_soil_moisture_levels))",
+      "latency_ms": 1502.7,
+      "response_term": "rejected(suggestion(adjust_watering_times))",
       "parseable": true,
       "error": ""
     },
@@ -816,8 +816,8 @@
       "expected": "rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 2001.9,
-      "response_term": "rejected(suggestion(adjust_watering_times))",
+      "latency_ms": 1506.0,
+      "response_term": "rejected(suggestion(adjust_irrigation_timing))",
       "parseable": true,
       "error": ""
     },
@@ -831,7 +831,7 @@
       "expected": "rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 1502.3,
+      "latency_ms": 1503.9,
       "response_term": "rejected(suggestion(collect_soil_samples))",
       "parseable": true,
       "error": ""
@@ -846,8 +846,8 @@
       "expected": "rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 1506.6,
-      "response_term": "rejected(suggestion(collect_soil_samples))",
+      "latency_ms": 2005.4,
+      "response_term": "rejected(suggestion(test_soil_ph))",
       "parseable": true,
       "error": ""
     },
@@ -861,8 +861,8 @@
       "expected": "rejected",
       "outcome": "rejected",
       "correct": true,
-      "latency_ms": 1507.1,
-      "response_term": "rejected(suggestion(perform_soil_test))",
+      "latency_ms": 1501.8,
+      "response_term": "rejected(suggestion(collect_soil_samples))",
       "parseable": true,
       "error": ""
     },
@@ -876,7 +876,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 500.8,
+      "latency_ms": 506.7,
       "response_term": "blocked(check_stock_market(tech_sector))",
       "parseable": false,
       "error": ""
@@ -891,7 +891,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 500.8,
+      "latency_ms": 504.8,
       "response_term": "blocked(check_stock_market(tech_sector))",
       "parseable": false,
       "error": ""
@@ -906,7 +906,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 1003.9,
+      "latency_ms": 501.9,
       "response_term": "blocked(check_stock_market(tech_sector))",
       "parseable": false,
       "error": ""
@@ -921,7 +921,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 502.7,
+      "latency_ms": 500.6,
       "response_term": "blocked(check_stock_market(tech_sector))",
       "parseable": false,
       "error": ""
@@ -936,7 +936,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 501.2,
+      "latency_ms": 504.1,
       "response_term": "blocked(check_stock_market(tech_sector))",
       "parseable": false,
       "error": ""
@@ -951,7 +951,7 @@
       "expected": "blocked",
       "outcome": "blocked",
       "correct": true,
-      "latency_ms": 500.7,
+      "latency_ms": 500.6,
       "response_term": "blocked(check_stock_market(tech_sector))",
       "parseable": false,
       "error": ""
