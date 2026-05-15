@@ -205,19 +205,3 @@ Tell rules allow `suggestion_request/1`.
 Told rules only accept responses when `status(active)`.
 The same query accepted with `active` is rejected with `idle`,
 demonstrating state-dependent body condition evaluation.
-
----
-
-## Citation
-
-```bibtex
-@inproceedings{delauretis2026telltold,
-  author    = {Lorenzo De Lauretis and Stefania Costantini},
-  title     = {Declarative Communication Filters for Controlled {LLM} Integration
-               in Logic-Based Multi-Agent Systems},
-  booktitle = {Proceedings of the 33rd International Workshop on Experimental
-               Evaluation of Algorithms for Solving Problems with Combinatorial
-               Explosion ({RCRA} 2026)},
-  year      = {2026}
-}
-```
