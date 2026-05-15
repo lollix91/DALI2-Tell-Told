@@ -1,0 +1,21 @@
+# Compose override for DALI2-Tell-Told experiment.
+#
+# Run from the DALI2 directory:
+#
+#   Windows PowerShell:
+#     $env:OPENROUTER_API_KEY = "sk-or-..."
+#     docker compose -f docker-compose.yml -f ..\DALI2-Tell-Told\docker-compose.experiment.yml up --build
+#
+#   Linux / macOS:
+#     OPENROUTER_API_KEY="sk-or-..." \
+#     docker compose -f docker-compose.yml -f ../DALI2-Tell-Told/docker-compose.experiment.yml up --build
+#
+# This override:
+#   - Mounts the DALI2-Tell-Told directory into the container as /dali2/experiments
+#   - Loads experiment_agents.pl from that mount (never copies the file into DALI2)
+#
+services:
+  dali2:
+    volumes:
+      - ../DALI2-Tell-Told:/dali2/experiments
+    command: ["8080", "experiments/experiment_agents.pl"]
