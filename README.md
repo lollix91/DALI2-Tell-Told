@@ -1,12 +1,5 @@
 # DALI2-Tell-Told: Experimental Evaluation of Declarative Communication Filters
 
-Companion experiment for the paper:
-
-> **Declarative Communication Filters for Controlled LLM Integration
-> in Logic-Based Multi-Agent Systems**
-> Lorenzo De Lauretis, Stefania Costantini
-> RCRA 2026 @ FLoC 2026, Lisbon, Portugal
-
 This repository evaluates DALI2's **tell/told filtering mechanism** applied to
 LLM (AI Oracle) interactions. The experiment measures filter correctness,
 LLM response parseability, state-dependent accuracy, and computational overhead
